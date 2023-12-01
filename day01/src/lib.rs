@@ -1,6 +1,4 @@
-use std::str::FromStr;
-
-pub fn day1_part1(input: &str) -> usize {
+pub fn day1_part1(input: &str) -> u32 {
     input
         .lines()
         .map(|line| {
@@ -12,74 +10,38 @@ pub fn day1_part1(input: &str) -> usize {
             let first = nums.first().map(|n| n * 10);
             let last = nums.last();
 
-            (first.unwrap() + last.unwrap()) as usize
+            first.unwrap() + last.unwrap()
         })
         .sum()
 }
 
-pub fn day1_part2(input: &str) -> usize {
+pub fn day1_part2(input: &str) -> u32 {
     input
         .lines()
         .map(|line| {
-            let mut first = 0;
-            let mut last = 0;
+            let nums = line
+                .chars()
+                .enumerate()
+                .filter_map(|(i, _)| match &line[i..] {
+                    s if s.starts_with("one") => Some(1),
+                    s if s.starts_with("two") => Some(2),
+                    s if s.starts_with("three") => Some(3),
+                    s if s.starts_with("four") => Some(4),
+                    s if s.starts_with("five") => Some(5),
+                    s if s.starts_with("six") => Some(6),
+                    s if s.starts_with("seven") => Some(7),
+                    s if s.starts_with("eight") => Some(8),
+                    s if s.starts_with("nine") => Some(9),
+                    s => s.chars().next().and_then(|c| c.to_digit(10)),
+                })
+                .collect::<Vec<_>>();
 
-            let mut start = 0;
-            let mut end = 1;
+            let first = nums.first().unwrap();
+            let last = nums.last().unwrap();
 
-            while !(start == line.len() && end > line.len()) {
-                if let Ok(n) = line[start..end].parse::<Number>() {
-                    if first == 0 {
-                        first = n as i32;
-                    }
-
-                    last = n as i32;
-
-                    start += 1;
-                    end = start + 1;
-                } else if end - start < 6 && end < line.len(){
-                    end += 1;
-                } else {
-                    start += 1;
-                    end = start + 1;
-                }
-            }
-
-            (first * 10 + last) as usize
+            (first * 10 + last) as u32
         })
         .sum()
-}
-
-#[derive(Clone, Copy)]
-enum Number {
-    One = 1,
-    Two = 2,
-    Three = 3,
-    Four = 4,
-    Five = 5,
-    Six = 6,
-    Seven = 7,
-    Eight = 8,
-    Nine = 9,
-}
-
-impl FromStr for Number {
-    type Err = ();
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "1" | "one" => Ok(Number::One),
-            "2" | "two" => Ok(Number::Two),
-            "3" | "three" => Ok(Number::Three),
-            "4" | "four" => Ok(Number::Four),
-            "5" | "five" => Ok(Number::Five),
-            "6" | "six" => Ok(Number::Six),
-            "7" | "seven" => Ok(Number::Seven),
-            "8" | "eight" => Ok(Number::Eight),
-            "9" | "nine" => Ok(Number::Nine),
-            _ => Err(()),
-        }
-    }
 }
 
 #[cfg(test)]
@@ -109,14 +71,13 @@ treb7uchet";
 
     #[test]
     fn part2_example() {
-        let input = 
-        "two1nine
-        eightwothree
-        abcone2threexyz
-        xtwone3four
-        4nineeightseven2
-        zoneight234
-        7pqrstsixteen";
+        let input = "two1nine
+eightwothree
+abcone2threexyz
+xtwone3four
+4nineeightseven2
+zoneight234
+7pqrstsixteen";
 
         assert_eq!(day1_part2(input), 281);
     }
