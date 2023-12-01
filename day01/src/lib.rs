@@ -39,7 +39,7 @@ pub fn day1_part2(input: &str) -> u32 {
             let first = nums.first().unwrap();
             let last = nums.last().unwrap();
 
-            (first * 10 + last) as u32
+            first * 10 + last
         })
         .sum()
 }
