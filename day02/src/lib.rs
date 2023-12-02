@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{collections::HashMap, str::FromStr};
 
 pub fn day2_part1(input: &str) -> u32 {
     input
@@ -69,37 +69,24 @@ impl FromStr for Game {
             .and_then(|h| h.1.parse().ok())
             .ok_or(())?;
 
-        let cub_set = tail
+        let cube_sets = tail
             .split(";")
             .map(|set| {
-                set.split(",").fold(Ok(CubeSet::new()), |acc, item| {
-                    if let Ok(acc) = acc {
-                        match item.trim() {
-                            s if s.ends_with("red") => Ok(CubeSet {
-                                red: s.split_once(" ").unwrap().0.parse().unwrap(),
-                                ..acc
-                            }),
-                            s if s.ends_with("blue") => Ok(CubeSet {
-                                blue: s.split_once(" ").unwrap().0.parse().unwrap(),
-                                ..acc
-                            }),
-                            s if s.ends_with("green") => Ok(CubeSet {
-                                green: s.split_once(" ").unwrap().0.parse().unwrap(),
-                                ..acc
-                            }),
-                            _ => Err(()),
-                        }
-                    } else {
-                        acc
-                    }
-                })
+                set.split(",")
+                    .filter_map(|cube| {
+                        cube.trim().split_once(" ")
+                            .map(|(v, k)| (k.trim(), v.parse::<u32>()))
+                    })
+                    .collect::<HashMap<_, _>>()
             })
-            .collect::<Result<Vec<CubeSet>, ()>>()?;
+            .map(|set| CubeSet {
+                red: set.get("red").and_then(|v| v.clone().ok()).unwrap_or(0),
+                blue: set.get("blue").and_then(|v| v.clone().ok()).unwrap_or(0),
+                green: set.get("green").and_then(|v| v.clone().ok()).unwrap_or(0),
+            })
+            .collect();
 
-        Ok(Game {
-            id,
-            cube_sets: cub_set,
-        })
+        Ok(Game { id, cube_sets })
     }
 }
 
