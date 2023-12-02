@@ -69,6 +69,8 @@ treb7uchet";
         let file_path = "input";
         let content = fs::read_to_string(file_path).expect("Something went wrong reading the file");
 
+        assert_eq!(day1_part1(&content), 55123);
+
         let answer = day1_part1(&content);
         print!("Answer: {}", answer)
     }
@@ -90,6 +92,8 @@ zoneight234
     fn part2() {
         let file_path = "input";
         let content = fs::read_to_string(file_path).expect("Something went wrong reading the file");
+
+        assert_eq!(day1_part2(&content), 55260);
 
         let answer = day1_part2(&content);
         print!("Answer: {}", answer)
