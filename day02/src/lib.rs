@@ -62,17 +62,20 @@ impl FromStr for Game {
         let cube_sets = tail
             .split(";")
             .map(|set| {
-                set.split(",")
+                let map = set
+                    .split(",")
                     .filter_map(|cube| {
-                        cube.trim().split_once(" ")
-                            .map(|(v, k)| (k.trim(), v.parse::<u32>()))
+                        cube.trim()
+                            .split_once(" ")
+                            .map(|(v, k)| (k.trim(), v.parse::<u32>().unwrap_or(0)))
                     })
-                    .collect::<HashMap<_, _>>()
-            })
-            .map(|set| CubeSet {
-                red: set.get("red").and_then(|v| v.clone().ok()).unwrap_or(0),
-                blue: set.get("blue").and_then(|v| v.clone().ok()).unwrap_or(0),
-                green: set.get("green").and_then(|v| v.clone().ok()).unwrap_or(0),
+                    .collect::<HashMap<_, _>>();
+
+                CubeSet {
+                    red: map.get("red").unwrap_or(&0).to_owned(),
+                    blue: map.get("blue").unwrap_or(&0).to_owned(),
+                    green: map.get("green").unwrap_or(&0).to_owned(),
+                }
             })
             .collect();
 
