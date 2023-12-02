@@ -48,16 +48,6 @@ struct CubeSet {
     green: u32,
 }
 
-impl CubeSet {
-    fn new() -> CubeSet {
-        CubeSet {
-            red: 0,
-            blue: 0,
-            green: 0,
-        }
-    }
-}
-
 impl FromStr for Game {
     type Err = ();
 
