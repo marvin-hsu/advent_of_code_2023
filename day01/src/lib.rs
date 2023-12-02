@@ -2,15 +2,17 @@ pub fn day1_part1(input: &str) -> u32 {
     input
         .lines()
         .map(|line| {
-            let nums = line
-                .chars()
-                .filter_map(|c| c.to_digit(10))
-                .collect::<Vec<_>>();
+            let nums = line.
+            chars()
+            .filter_map(|c| c.to_digit(10))
+            .fold((None,None), |acc, x| {
+                match acc {
+                    (None, _) => (Some(x), Some(x)),
+                    _ => (acc.0, Some(x))  
+                }
+            });
 
-            let first = nums.first().map(|n| n * 10);
-            let last = nums.last();
-
-            first.unwrap() + last.unwrap()
+            nums.0.unwrap() * 10 + nums.1.unwrap()
         })
         .sum()
 }
@@ -34,12 +36,14 @@ pub fn day1_part2(input: &str) -> u32 {
                     s if s.starts_with("nine") => Some(9),
                     s => s.chars().next().and_then(|c| c.to_digit(10)),
                 })
-                .collect::<Vec<_>>();
+                .fold((None,None), |acc, x| {
+                    match acc {
+                        (None, _) => (Some(x), Some(x)),
+                        _ => (acc.0, Some(x))  
+                    }
+                });
 
-            let first = nums.first().unwrap();
-            let last = nums.last().unwrap();
-
-            first * 10 + last
+            nums.0.unwrap() * 10 + nums.1.unwrap()
         })
         .sum()
 }
