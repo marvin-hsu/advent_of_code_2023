@@ -17,6 +17,24 @@ pub fn day2_part2(input: &str) -> u32 {
         .sum()
 }
 
+fn is_passible(game: &Game) -> bool {
+    game.cube_sets
+        .iter()
+        .all(|set| set.red <= 12 && set.blue <= 14 && set.green <= 13)
+}
+
+fn get_power(game: Game) -> u32 {
+    let (red, blue, green) = game.cube_sets.iter().fold((0, 0, 0), |acc, set| {
+        (
+            acc.0.max(set.red),
+            acc.1.max(set.blue),
+            acc.2.max(set.green),
+        )
+    });
+
+    red * blue * green
+}
+
 #[derive(Debug)]
 struct Game {
     id: u32,
@@ -46,7 +64,10 @@ impl FromStr for Game {
     fn from_str(s: &str) -> Result<Self, ()> {
         let (head, tail) = s.split_once(":").ok_or(())?;
 
-        let id = head.split_once(" ").and_then(|h| h.1.parse().ok()).ok_or(())?;
+        let id = head
+            .split_once(" ")
+            .and_then(|h| h.1.parse().ok())
+            .ok_or(())?;
 
         let cub_set = tail
             .split(";")
@@ -80,27 +101,6 @@ impl FromStr for Game {
             cube_sets: cub_set,
         })
     }
-}
-
-// only 12 red cubes, 13 green cubes, and 14 blue cubes?
-fn is_passible(game: &Game) -> bool {
-    game.cube_sets
-        .iter()
-        .all(|set| set.red <= 12 && set.blue <= 14 && set.green <= 13)
-}
-
-fn get_power(game: Game) -> u32 {
-    let (red,blue,green) = game.cube_sets.iter().fold((0,0,0),|acc, set| {
-        (
-            acc.0.max(set.red),
-            acc.1.max(set.blue),
-            acc.2.max(set.green),
-        )
-    });
-
-    println!("{} * {} * {} = {} ", red, blue, green, red * blue * green);
-
-    red * blue * green
 }
 
 #[cfg(test)]
