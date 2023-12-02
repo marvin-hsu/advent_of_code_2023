@@ -2,15 +2,13 @@ pub fn day1_part1(input: &str) -> u32 {
     input
         .lines()
         .map(|line| {
-            let nums = line.
-            chars()
-            .filter_map(|c| c.to_digit(10))
-            .fold((None,None), |acc, x| {
-                match acc {
+            let nums = line
+                .chars()
+                .filter_map(|c| c.to_digit(10))
+                .fold((None, None), |acc, x| match acc {
                     (None, _) => (Some(x), Some(x)),
-                    _ => (acc.0, Some(x))  
-                }
-            });
+                    _ => (acc.0, Some(x)),
+                });
 
             nums.0.unwrap() * 10 + nums.1.unwrap()
         })
@@ -36,11 +34,9 @@ pub fn day1_part2(input: &str) -> u32 {
                     s if s.starts_with("nine") => Some(9),
                     s => s.chars().next().and_then(|c| c.to_digit(10)),
                 })
-                .fold((None,None), |acc, x| {
-                    match acc {
-                        (None, _) => (Some(x), Some(x)),
-                        _ => (acc.0, Some(x))  
-                    }
+                .fold((None, None), |acc, x| match acc {
+                    (None, _) => (Some(x), Some(x)),
+                    _ => (acc.0, Some(x)),
                 });
 
             nums.0.unwrap() * 10 + nums.1.unwrap()
