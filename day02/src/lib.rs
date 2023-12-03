@@ -83,9 +83,9 @@ impl FromStr for Game {
                     .filter_map(|cube| {
                         cube.trim()
                             .split_once(' ')
-                            .map(|(v, k)| (k.trim(), v.parse::<u32>().unwrap_or(0)))
+                            .map(|(v, k)| (k.trim(), v.parse().unwrap_or(0)))
                     })
-                    .collect::<HashMap<_, _>>();
+                    .collect::<HashMap<&str, u32>>();
 
                 CubeSet {
                     red: *map.get("red").unwrap_or(&0),
