@@ -10,8 +10,21 @@ pub fn day3_part1(input: &str) -> usize {
         .sum()
 }
 
+pub fn day3_part2(input: &str) -> usize {
+    let (numbers, symbols) = prepare_data(input);
+
+    symbols
+        .into_iter()
+        .filter(|symbol| symbol.0.eq(&'*'))
+        .filter_map(|symbol| match symbol.get_neighbours(&numbers).as_slice() {
+            [first, second] => Some(first.value * second.value),
+            _ => None,
+        })
+        .sum()
+}
+
 #[derive(Debug, PartialEq, Clone, Copy)]
-struct Symbol(usize, usize);
+struct Symbol(char, usize, usize);
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 struct Number {
@@ -30,7 +43,21 @@ impl Number {
 
         symbols
             .iter()
-            .any(|Symbol(x, y)| *x >= x_start && *x <= x_end && *y >= y_start && *y <= y_end)
+            .any(|Symbol(_, x, y)| *x >= x_start && *x <= x_end && *y >= y_start && *y <= y_end)
+    }
+}
+
+impl Symbol {
+    fn get_neighbours(self, numbers: &[Number]) -> Vec<&Number> {
+        numbers
+            .iter()
+            .filter(|Number { x, y, length, .. }| {
+                self.1 >= x.saturating_add_signed(-1)
+                    && self.1 <= x + length
+                    && self.2 >= y.saturating_add_signed(-1)
+                    && self.2 <= y + 1
+            })
+            .collect()
     }
 }
 
@@ -53,10 +80,13 @@ fn prepare_data(input: &str) -> (Vec<Number>, Vec<Symbol>) {
                     });
 
                     x += m.len();
-                } else if !line[x..].starts_with('.') {
-                    symbols.push(Symbol(x, y));
-                    x += 1;
                 } else {
+                    if let Some(c) = line[x..].chars().next() {
+                        if c != '.' {
+                            symbols.push(Symbol(c, x, y));
+                        }
+                    }
+
                     x += 1;
                 }
             }
@@ -95,6 +125,29 @@ mod tests {
     }
 
     #[test]
+    fn part2_example() {
+        let input = "467..114..
+...*......
+..35..633.
+......#...
+617*......
+.....+.58.
+..592.....
+......755.
+...$.*....
+.664.598..";
+
+        assert_eq!(day3_part2(input), 467835);
+    }
+
+    #[test]
+    fn part2() {
+        let input = fs::read_to_string("input").unwrap();
+
+        assert_eq!(day3_part2(&input), 72514855);
+    }
+
+    #[test]
     fn test_prepare_data() {
         let input = "467..114..
 ...*......";
@@ -118,6 +171,6 @@ mod tests {
             ]
         );
 
-        assert_eq!(symbols, vec![Symbol(3, 1)]);
+        assert_eq!(symbols, vec![Symbol('*', 3, 1)]);
     }
 }
