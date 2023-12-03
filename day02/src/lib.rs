@@ -3,7 +3,7 @@ use std::{collections::HashMap, str::FromStr};
 pub fn day2_part1(input: &str) -> u32 {
     input
         .lines()
-        .filter_map(|line| Game::from_str(line).ok())
+        .filter_map(|line| line.parse::<Game>().ok())
         .filter(|game| is_passible(game))
         .map(|game| game.id)
         .sum()
@@ -12,7 +12,7 @@ pub fn day2_part1(input: &str) -> u32 {
 pub fn day2_part2(input: &str) -> u32 {
     input
         .lines()
-        .filter_map(|line| Game::from_str(line).ok())
+        .filter_map(|line| line.parse::<Game>().ok())
         .map(|game| get_power(game))
         .sum()
 }
