@@ -1,25 +1,27 @@
 use regex::Regex;
 
 pub fn day3_part1(input: &str) -> usize {
-    let (numbers, symbols) = prepare_data(input);
+    let (numbers, symbols) = extract_numbers_and_symbols(input);
 
     numbers
         .iter()
-        .filter(|number| number.is_adjacent_to_symbol(&symbols))
+        .filter(|number| number.has_nearby_symbol(&symbols))
         .map(|number| number.value)
         .sum()
 }
 
 pub fn day3_part2(input: &str) -> usize {
-    let (numbers, symbols) = prepare_data(input);
+    let (numbers, symbols) = extract_numbers_and_symbols(input);
 
     symbols
         .into_iter()
         .filter(|symbol| symbol.0.eq(&'*'))
-        .filter_map(|symbol| match symbol.get_neighbours(&numbers).as_slice() {
-            [first, second] => Some(first.value * second.value),
-            _ => None,
-        })
+        .filter_map(
+            |symbol| match symbol.get_adjacent_numbers(&numbers).as_slice() {
+                [first, second] => Some(first.value * second.value),
+                _ => None,
+            },
+        )
         .sum()
 }
 
@@ -35,7 +37,7 @@ struct Number {
 }
 
 impl Number {
-    fn is_adjacent_to_symbol(self, symbols: &[Symbol]) -> bool {
+    fn has_nearby_symbol(&self, symbols: &[Symbol]) -> bool {
         let x_start = self.x.saturating_add_signed(-1);
         let x_end = self.x + self.length;
         let y_start = self.y.saturating_add_signed(-1);
@@ -48,7 +50,7 @@ impl Number {
 }
 
 impl Symbol {
-    fn get_neighbours(self, numbers: &[Number]) -> Vec<&Number> {
+    fn get_adjacent_numbers(self, numbers: &[Number]) -> Vec<&Number> {
         numbers
             .iter()
             .filter(|Number { x, y, length, .. }| {
@@ -61,7 +63,7 @@ impl Symbol {
     }
 }
 
-fn prepare_data(input: &str) -> (Vec<Number>, Vec<Symbol>) {
+fn extract_numbers_and_symbols(input: &str) -> (Vec<Number>, Vec<Symbol>) {
     let re = Regex::new(r"^\d+").unwrap();
 
     input
@@ -149,7 +151,7 @@ mod tests {
     fn test_prepare_data() {
         let input = "467..114..
 ...*......";
-        let (numbers, symbols) = prepare_data(input);
+        let (numbers, symbols) = extract_numbers_and_symbols(input);
 
         assert_eq!(
             numbers,

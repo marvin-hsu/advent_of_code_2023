@@ -1,51 +1,67 @@
 use std::{collections::HashMap, str::FromStr};
 
+const LIMIT: Limit = Limit {
+    red: 12,
+    blue: 14,
+    green: 13,
+};
+
 pub fn day2_part1(input: &str) -> u32 {
     input
         .lines()
-        .filter_map(|line| line.parse::<Game>().ok())
-        .filter(is_passible)
-        .map(|game| game.id)
+        .filter_map(|line| {
+            line.parse()
+                .ok()
+                .filter(|game: &Game| game.is_passible(&LIMIT))
+                .map(|game| game.id)
+        })
         .sum()
 }
 
 pub fn day2_part2(input: &str) -> u32 {
     input
         .lines()
-        .filter_map(|line| line.parse::<Game>().ok())
-        .map(get_power)
+        .filter_map(|line| line.parse().ok().map(|game: Game| game.get_power()))
         .sum()
 }
 
-fn is_passible(game: &Game) -> bool {
-    game.cube_sets
-        .iter()
-        .all(|set| set.red <= 12 && set.blue <= 14 && set.green <= 13)
-}
-
-fn get_power(game: Game) -> u32 {
-    let (red, blue, green) = game.cube_sets.iter().fold((0, 0, 0), |acc, set| {
-        (
-            acc.0.max(set.red),
-            acc.1.max(set.blue),
-            acc.2.max(set.green),
-        )
-    });
-
-    red * blue * green
-}
-
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Clone)]
 struct Game {
     id: u32,
     cube_sets: Vec<CubeSet>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 struct CubeSet {
     red: u32,
     blue: u32,
     green: u32,
+}
+
+struct Limit {
+    red: u32,
+    blue: u32,
+    green: u32,
+}
+
+impl Game {
+    fn get_power(&self) -> u32 {
+        let (red, blue, green) = self.cube_sets.iter().fold((0, 0, 0), |acc, set| {
+            (
+                acc.0.max(set.red),
+                acc.1.max(set.blue),
+                acc.2.max(set.green),
+            )
+        });
+
+        red * blue * green
+    }
+
+    fn is_passible(&self, limit: &Limit) -> bool {
+        self.cube_sets
+            .iter()
+            .all(|set| set.red <= limit.red && set.blue <= limit.blue && set.green <= limit.green)
+    }
 }
 
 impl FromStr for Game {
@@ -129,18 +145,28 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green";
     fn test_parse() {
         let input = "Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green";
 
-        let game = Game::from_str(input).unwrap();
-
-        assert_eq!(game.id, 1);
-        assert_eq!(game.cube_sets.len(), 3);
-        assert_eq!(game.cube_sets[0].red, 4);
-        assert_eq!(game.cube_sets[0].blue, 3);
-        assert_eq!(game.cube_sets[0].green, 0);
-        assert_eq!(game.cube_sets[1].red, 1);
-        assert_eq!(game.cube_sets[1].blue, 6);
-        assert_eq!(game.cube_sets[1].green, 2);
-        assert_eq!(game.cube_sets[2].red, 0);
-        assert_eq!(game.cube_sets[2].blue, 0);
-        assert_eq!(game.cube_sets[2].green, 2);
+        assert_eq!(
+            input.parse::<Game>().unwrap(),
+            Game {
+                id: 1,
+                cube_sets: vec![
+                    CubeSet {
+                        red: 4,
+                        blue: 3,
+                        green: 0
+                    },
+                    CubeSet {
+                        red: 1,
+                        blue: 6,
+                        green: 2
+                    },
+                    CubeSet {
+                        red: 0,
+                        blue: 0,
+                        green: 2
+                    },
+                ],
+            }
+        );
     }
 }
