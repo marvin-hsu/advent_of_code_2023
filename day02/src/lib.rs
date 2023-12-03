@@ -4,7 +4,7 @@ pub fn day2_part1(input: &str) -> u32 {
     input
         .lines()
         .filter_map(|line| line.parse::<Game>().ok())
-        .filter(|game| is_passible(game))
+        .filter(is_passible)
         .map(|game| game.id)
         .sum()
 }
@@ -13,7 +13,7 @@ pub fn day2_part2(input: &str) -> u32 {
     input
         .lines()
         .filter_map(|line| line.parse::<Game>().ok())
-        .map(|game| get_power(game))
+        .map(get_power)
         .sum()
 }
 
@@ -52,29 +52,29 @@ impl FromStr for Game {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, ()> {
-        let (head, tail) = s.split_once(":").ok_or(())?;
+        let (head, tail) = s.split_once(':').ok_or(())?;
 
         let id = head
-            .split_once(" ")
+            .split_once(' ')
             .and_then(|h| h.1.parse().ok())
             .ok_or(())?;
 
         let cube_sets = tail
-            .split(";")
+            .split(';')
             .map(|set| {
                 let map = set
-                    .split(",")
+                    .split(',')
                     .filter_map(|cube| {
                         cube.trim()
-                            .split_once(" ")
+                            .split_once(' ')
                             .map(|(v, k)| (k.trim(), v.parse::<u32>().unwrap_or(0)))
                     })
                     .collect::<HashMap<_, _>>();
 
                 CubeSet {
-                    red: map.get("red").to_owned().unwrap_or(0),
-                    blue: map.get("blue").to_owned().unwrap_or(0),
-                    green: map.get("green").to_owned().unwrap_or(0),
+                    red: *map.get("red").unwrap_or(&0),
+                    blue: *map.get("blue").unwrap_or(&0),
+                    green: *map.get("green").unwrap_or(&0),
                 }
             })
             .collect();
