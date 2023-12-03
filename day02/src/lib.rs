@@ -72,9 +72,9 @@ impl FromStr for Game {
                     .collect::<HashMap<_, _>>();
 
                 CubeSet {
-                    red: map.get("red").unwrap_or(&0).to_owned(),
-                    blue: map.get("blue").unwrap_or(&0).to_owned(),
-                    green: map.get("green").unwrap_or(&0).to_owned(),
+                    red: map.get("red").to_owned().unwrap_or(0),
+                    blue: map.get("blue").to_owned().unwrap_or(0),
+                    green: map.get("green").to_owned().unwrap_or(0),
                 }
             })
             .collect();
