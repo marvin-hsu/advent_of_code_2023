@@ -80,13 +80,11 @@ fn prepare_data(input: &str) -> (Vec<Number>, Vec<Symbol>) {
                     });
 
                     x += m.len();
-                } else {
-                    if let Some(c) = line[x..].chars().next() {
-                        if c != '.' {
-                            symbols.push(Symbol(c, x, y));
-                        }
-                    }
+                } else if let Some(c) = line[x..].chars().next().filter(|c| !c.eq(&'.')) {
+                    symbols.push(Symbol(c, x, y));
 
+                    x += 1;
+                } else {
                     x += 1;
                 }
             }
