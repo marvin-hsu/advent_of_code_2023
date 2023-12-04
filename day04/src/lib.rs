@@ -12,10 +12,10 @@ pub fn day4_part1(input: &str) -> usize {
 }
 
 pub fn day4_part2(input: &str) -> usize {
-    let cards = input
+    let cards: Vec<ScratchCard> = input
         .lines()
-        .map(|line| line.parse::<ScratchCard>())
-        .collect::<Result<Vec<_>, _>>()
+        .map(|line| line.parse())
+        .collect::<Result<_, _>>()
         .expect("Failed to parse scratch card");
 
     let cards_len = cards.len();
