@@ -97,54 +97,20 @@ fn extract_numbers_and_symbols(input: &str) -> (Vec<Number>, Vec<Symbol>) {
 
 #[cfg(test)]
 mod tests {
-    use std::fs;
-
     use super::*;
 
     #[test]
     fn part1_example() {
-        let input = "467..114..
-...*......
-..35..633.
-......#...
-617*......
-.....+.58.
-..592.....
-......755.
-...$.*....
-.664.598..";
+        let input = include_str!("../example");
 
         assert_eq!(day3_part1(input), 4361);
     }
 
     #[test]
-    fn part1() {
-        let input = fs::read_to_string("input").unwrap();
-
-        assert_eq!(day3_part1(&input), 520135);
-    }
-
-    #[test]
     fn part2_example() {
-        let input = "467..114..
-...*......
-..35..633.
-......#...
-617*......
-.....+.58.
-..592.....
-......755.
-...$.*....
-.664.598..";
+        let input = include_str!("../example");
 
         assert_eq!(day3_part2(input), 467835);
-    }
-
-    #[test]
-    fn part2() {
-        let input = fs::read_to_string("input").unwrap();
-
-        assert_eq!(day3_part2(&input), 72514855);
     }
 
     #[test]

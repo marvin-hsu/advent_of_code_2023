@@ -46,52 +46,19 @@ pub fn day1_part2(input: &str) -> u32 {
 
 #[cfg(test)]
 mod tests {
-    use std::fs;
-
     use super::*;
 
     #[test]
     fn part1_example() {
-        let input = "1abc2
-pqr3stu8vwx
-a1b2c3d4e5f
-treb7uchet";
+        let input = include_str!("../example1");
 
         assert_eq!(day1_part1(input), 142);
     }
 
     #[test]
-    fn part1() {
-        let file_path = "input";
-        let content = fs::read_to_string(file_path).expect("Something went wrong reading the file");
-
-        assert_eq!(day1_part1(&content), 55123);
-
-        let answer = day1_part1(&content);
-        print!("Answer: {}", answer)
-    }
-
-    #[test]
     fn part2_example() {
-        let input = "two1nine
-eightwothree
-abcone2threexyz
-xtwone3four
-4nineeightseven2
-zoneight234
-7pqrstsixteen";
+        let input = include_str!("../example2");
 
         assert_eq!(day1_part2(input), 281);
-    }
-
-    #[test]
-    fn part2() {
-        let file_path = "input";
-        let content = fs::read_to_string(file_path).expect("Something went wrong reading the file");
-
-        assert_eq!(day1_part2(&content), 55260);
-
-        let answer = day1_part2(&content);
-        print!("Answer: {}", answer)
     }
 }

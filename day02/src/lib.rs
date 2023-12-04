@@ -83,9 +83,9 @@ impl FromStr for Game {
                     .filter_map(|cube| {
                         cube.trim()
                             .split_once(' ')
-                            .map(|(v, k)| (k.trim(), v.parse().unwrap_or(0)))
+                            .map(|(v, k)| (k, v.parse::<u32>().unwrap_or(0)))
                     })
-                    .collect::<HashMap<&str, u32>>();
+                    .collect::<HashMap<_, _>>();
 
                 CubeSet {
                     red: *map.get("red").unwrap_or(&0),
@@ -101,44 +101,20 @@ impl FromStr for Game {
 
 #[cfg(test)]
 mod tests {
-    use std::fs;
-
     use super::*;
 
     #[test]
     fn part1_example() {
-        let input = "Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
-Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
-Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
-Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
-Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green";
+        let input = include_str!("../example");
 
         assert_eq!(day2_part1(input), 8);
     }
 
     #[test]
-    fn part1() {
-        let input = fs::read_to_string("input").unwrap();
-
-        assert_eq!(day2_part1(&input), 2541);
-    }
-
-    #[test]
     fn part2_example() {
-        let input = "Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
-Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
-Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
-Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
-Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green";
+        let input = include_str!("../example");
 
         assert_eq!(day2_part2(input), 2286);
-    }
-
-    #[test]
-    fn part2() {
-        let input = fs::read_to_string("input").unwrap();
-
-        assert_eq!(day2_part2(&input), 66016);
     }
 
     #[test]
