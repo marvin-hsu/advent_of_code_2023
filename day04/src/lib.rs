@@ -18,9 +18,11 @@ pub fn day4_part2(input: &str) -> usize {
         .collect::<Result<Vec<_>, _>>()
         .expect("Failed to parse scratch card");
 
+    let cards_len = cards.len();
+
     cards
         .iter()
-        .fold(HashMap::<usize, usize>::new(), |mut map, card| {
+        .fold(HashMap::new(), |mut map, card| {
             let count = card.count_matching_numbers();
             let instances = map.entry(card.id).or_insert(0);
             *instances += 1;
@@ -28,9 +30,8 @@ pub fn day4_part2(input: &str) -> usize {
             if count > 0 {
                 let copy = *instances;
 
-                for id in (card.id + 1)..=(card.id + count).min(cards.len()) {
-                    let p = map.entry(id).or_insert(0);
-                    *p += copy;
+                for id in (card.id + 1)..=(card.id + count).min(cards_len) {
+                    *map.entry(id).or_insert(0) += copy;
                 }
             }
             map
