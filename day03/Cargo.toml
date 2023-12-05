@@ -19,4 +19,4 @@ test = false
 doctest = false
 
 [dependencies]
-regex = "1.10.2"
+regex = { workspace = true }

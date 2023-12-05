@@ -1,3 +1,5 @@
+// use regex::Regex;
+
 use regex::Regex;
 
 pub fn day3_part1(input: &str) -> usize {

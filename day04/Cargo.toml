@@ -19,4 +19,4 @@ test = false
 doctest = false
 
 [dependencies]
-tap = "1.0.1"
+tap = { workspace = true }
