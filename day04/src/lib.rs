@@ -28,10 +28,10 @@ pub fn day4_part2(input: &str) -> usize {
             *instances += 1;
 
             if count > 0 {
-                let copy = *instances;
+                let instances = *instances;
 
                 for id in (card.id + 1)..=(card.id + count).min(cards_len) {
-                    *map.entry(id).or_insert(0) += copy;
+                    *map.entry(id).or_insert(0) += instances;
                 }
             }
             map
