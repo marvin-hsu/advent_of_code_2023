@@ -40,6 +40,12 @@ pub fn day4_part2(input: &str) -> usize {
         .sum()
 }
 
+/// Replace HashMap with VecDeque
+#[allow(unused_variables)]
+pub fn day4_part2_v2(input: &str) -> usize {
+    todo!()
+}
+
 #[derive(Debug, PartialEq, Clone)]
 struct ScratchCard {
     id: usize,
