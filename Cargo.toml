@@ -1,8 +1,12 @@
 
 [workspace]
-members = ["day01","day02","day03","day04"]
+members = ["day01","day02","day03","day04","day05"]
 resolver = "2"
 
 [workspace.dependencies]
 regex = "1.10.2"
 tap = "1.0.1"
+anyhow = "1.0.75"
+tracing = "0.1.40"
+tracing-subscriber = "0.3.18"
+itertools = "0.12.0"
