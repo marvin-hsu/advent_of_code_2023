@@ -10,13 +10,12 @@ pub fn day5_part1(input: &str) -> Result<isize> {
     let seeds = iter
         .next()
         .and_then(|s| s.split_once(':'))
-        .and_then(|s| {
-            s.1.split_ascii_whitespace()
-                .map(|s| s.parse::<isize>())
-                .collect::<Result<Vec<isize>, _>>()
-                .ok()
-        })
-        .ok_or(anyhow!("Parse Seeds Fail"))?;
+        .ok_or(anyhow!("Parse Seeds Fail"))?
+        .1
+        .split_ascii_whitespace()
+        .map(|s| s.parse::<isize>())
+        .collect::<Result<Vec<isize>, _>>()?;
+
     let tables = iter
         .map(|table| table.parse::<Table>())
         .process_results(|iter| iter.collect::<Vec<Table>>())?;
@@ -36,22 +35,20 @@ pub fn day5_part2(input: &str) -> Result<isize> {
     let seeds = iter
         .next()
         .and_then(|s| s.split_once(':'))
-        .and_then(|s| {
-            s.1.split_ascii_whitespace()
-                .map(|s| s.parse::<isize>())
-                .process_results(|iter| {
-                    iter.chunks(2)
-                        .into_iter()
-                        .flat_map(|mut c| {
-                            let start = c.next().unwrap();
-                            let range = c.next().unwrap();
-                            start..start + range
-                        })
-                        .collect::<Vec<isize>>()
-                })
-                .ok()
-        })
         .ok_or(anyhow!("Parse Seeds Fail"))?
+        .1
+        .split_ascii_whitespace()
+        .map(|s| s.parse::<isize>())
+        .process_results(|iter| {
+            iter.chunks(2)
+                .into_iter()
+                .flat_map(|mut c| {
+                    let start = c.next().unwrap();
+                    let range = c.next().unwrap();
+                    start..start + range
+                })
+                .collect::<Vec<isize>>()
+        })?
         .tap(|v| println!("{:#?}", v));
 
     let tables = iter
