@@ -1,10 +1,11 @@
 use anyhow::{anyhow, Result};
+use itertools::Itertools;
 use tap::Tap;
 
-pub fn day6_part1(input: &str) -> Result<u32> {
+fn day6_part1_v1(input: &str) -> Result<usize> {
     let rounds = parse_round(input)?;
 
-    let result: usize = rounds
+    let result = rounds
         .iter()
         .map(|round| {
             round
@@ -15,19 +16,104 @@ pub fn day6_part1(input: &str) -> Result<u32> {
         })
         .product();
 
-    Ok(result as u32)
+    Ok(result)
 }
 
-pub fn day6_part2() {}
+pub fn day6_part1_v2(input: &str) -> Result<usize> {
+    let rounds = parse_round(input)?;
+
+    let result = rounds
+        .iter()
+        .map(|round| {
+            // let function = | x | x * (round.time - x);
+            // a = 1; b = -round.time; c = round.distance;
+
+            round
+                .time
+                .pow(2)
+                .checked_add_signed(-4 * round.distance as isize)
+                .ok_or(anyhow!("Overflow"))
+                .map(|discriminant| {
+                    let b = round.time as f64;
+                    let factor = (discriminant as f64).sqrt();
+                    let start = (b - factor) / 2.0;
+                    let end = (b + factor) / 2.0;
+
+                    let start = (if start.ceil() == start {
+                        start + 1.0
+                    } else {
+                        start.ceil()
+                    }) as usize;
+                    let end = end.ceil() as usize;
+
+                    (start..end).len()
+                })
+        })
+        .process_results(|iter| iter.product::<usize>())?;
+
+    Ok(result)
+}
+
+fn day6_part2_v1(input: &str) -> Result<usize> {
+    let rounds = parse_round(&input.replace(' ', ""))?;
+
+    let result = rounds
+        .iter()
+        .map(|round| {
+            round
+                .get_win_times()
+                // .tap(|v| println!("{:?}", v))
+                .len()
+            // .tap(|l| println!("{}: {}", round.time, l))
+        })
+        .sum();
+
+    Ok(result)
+}
+
+pub fn day6_part2_v2(input: &str) -> Result<usize> {
+    let rounds = parse_round(&input.replace(' ', ""))?;
+
+    let result = rounds
+        .iter()
+        .map(|round| {
+            // let function = | x | x * (round.time - x);
+            // a = 1; b = -round.time; c = round.distance;
+
+            round
+                .time
+                .pow(2)
+                .checked_add_signed(-4 * round.distance as isize)
+                .ok_or(anyhow!("Overflow"))
+                .map(|discriminant| {
+                    let b = round.time as f64;
+                    let factor = (discriminant as f64).sqrt();
+                    let start = (b - factor) / 2.0;
+                    let end = (b + factor) / 2.0;
+
+                    let start = (if start.ceil() == start {
+                        start + 1.0
+                    } else {
+                        start.ceil()
+                    }) as usize;
+                    let end = end.ceil() as usize;
+
+                    (start..end).len()
+                })
+        })
+        .process_results(|iter| iter.sum())?;
+
+    Ok(result)
+}
 
 #[derive(Debug, PartialEq)]
 struct Round {
-    time: u32,
-    distance: u32,
+    time: usize,
+    distance: usize,
 }
 
 impl Round {
-    fn get_win_times(&self) -> Vec<u32> {
+    fn get_win_times(&self) -> Vec<usize> {
         (0..self.time)
             .map(|t| {
                 let speed = t;
@@ -41,12 +127,20 @@ impl Round {
 
 fn parse_round(input: &str) -> Result<Vec<Round>> {
     let (time, distance) = input.split_once('\n').ok_or(anyhow!("No newline"))?;
-    time.split_ascii_whitespace()
-        .skip(1)
-        .zip(distance.split_ascii_whitespace().skip(1))
+    time.split_once(':')
+        .ok_or(anyhow!("No ':' in time"))?
+        .1
+        .split_ascii_whitespace()
+        .zip(
+            distance
+                .split_once(':')
+                .ok_or(anyhow!("No ':' in distance"))?
+                .1
+                .split_ascii_whitespace(),
+        )
         .map(|(t, d)| {
-            let time = t.parse::<u32>()?;
-            let distance = d.parse::<u32>()?;
+            let time = t.trim().parse::<usize>()?;
+            let distance = d.trim().parse::<usize>()?;
             Ok(Round { time, distance })
         })
         .collect::<Result<_, _>>()
@@ -59,11 +153,16 @@ mod tests {
     #[test]
     fn test_day6_part1() {
         let input = include_str!("../example");
-        assert_eq!(day6_part1(input).unwrap(), 288);
+        assert_eq!(day6_part1_v1(input).unwrap(), 288);
+        assert_eq!(day6_part1_v2(input).unwrap(), 288);
     }
 
     #[test]
-    fn test_day6_part2() {}
+    fn test_day6_part2() {
+        let input = include_str!("../example");
+        assert_eq!(day6_part2_v1(input).unwrap(), 71503);
+        assert_eq!(day6_part2_v2(input).unwrap(), 71503);
+    }
 
     #[test]
     fn test_parse_round() {
