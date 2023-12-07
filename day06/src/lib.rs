@@ -1,7 +1,9 @@
 use anyhow::{anyhow, Result};
 use itertools::Itertools;
+#[allow(unused_imports)]
 use tap::Tap;
 
+#[allow(dead_code)]
 fn day6_part1_v1(input: &str) -> Result<usize> {
     let rounds = parse_round(input)?;
 
@@ -54,6 +56,7 @@ pub fn day6_part1_v2(input: &str) -> Result<usize> {
     Ok(result)
 }
 
+#[allow(dead_code)]
 fn day6_part2_v1(input: &str) -> Result<usize> {
     let rounds = parse_round(&input.replace(' ', ""))?;
 
