@@ -1,4 +1,4 @@
-use std::{collections::HashMap, str::FromStr};
+use std::collections::HashMap;
 
 use anyhow::{anyhow, Result};
 use itertools::Itertools;
@@ -60,7 +60,10 @@ pub fn part2(input: &str) -> Result<usize> {
         .process_results(|iter| {
             iter.sorted_by_key(|card| card.1)
                 .enumerate()
-                .map(|(round, card)| (round + 1) * card.0)
+                .map(|(round, card)| {
+                    println!("{} \t- {:?}", round, card);
+                    (round + 1) * card.0
+                })
                 .sum()
         })?;
 
@@ -143,22 +146,16 @@ impl CardType {
             map
         });
 
-        if map.iter().any(|(_, &count)| count == 5) {
-            CardType::FiveKind(labels)
-        } else if map.iter().any(|(_, &count)| count == 4) {
-            CardType::FourKind(labels)
-        } else if map.iter().any(|(_, &count)| count == 3) {
-            if map.iter().any(|(_, &count)| count == 2) {
-                CardType::FullHouse(labels)
-            } else {
-                CardType::ThreeKind(labels)
-            }
-        } else if map.iter().filter(|(_, &count)| count == 2).count() == 2 {
-            CardType::TwoPair(labels)
-        } else if map.iter().any(|(_, &count)| count == 2) {
-            CardType::OnePair(labels)
-        } else {
-            CardType::HighCard(labels)
+        let set = map.iter().map(|(_, v)| v).sorted().collect_vec();
+
+        match set.as_slice() {
+            [5] => CardType::FiveKind(labels),
+            [1, 4] => CardType::FourKind(labels),
+            [2, 3] => CardType::FullHouse(labels),
+            [1, 1, 3] => CardType::ThreeKind(labels),
+            [1, 2, 2] => CardType::TwoPair(labels),
+            [1, 1, 1, 2] => CardType::OnePair(labels),
+            _ => CardType::HighCard(labels),
         }
     }
 
@@ -177,52 +174,37 @@ impl CardType {
                     (map, jockers)
                 });
 
-        if map.iter().any(|(_, &count)| count == 5) {
-            CardType::FiveKind(labels)
-        } else if map.iter().any(|(_, &count)| count == 4) {
-            if jockers.len() == 1 {
-                CardType::FiveKind(labels)
-            } else {
-                CardType::FourKind(labels)
-            }
-        } else if map.iter().any(|(_, &count)| count == 3) {
-            if map.iter().any(|(_, &count)| count == 2) {
-                CardType::FullHouse(labels)
-            } else if jockers.len() == 2 {
-                CardType::FiveKind(labels)
-            } else if jockers.len() == 1 {
-                CardType::FourKind(labels)
-            } else {
-                CardType::ThreeKind(labels)
-            }
-        } else if map.iter().filter(|(_, &count)| count == 2).count() == 2 {
-            if jockers.len() == 1 {
-                CardType::FullHouse(labels)
-            } else {
-                CardType::TwoPair(labels)
-            }
-        } else if map.iter().any(|(_, &count)| count == 2) {
-            if jockers.len() == 3 {
-                CardType::FiveKind(labels)
-            } else if jockers.len() == 2 {
-                CardType::FourKind(labels)
-            } else if jockers.len() == 1 {
-                CardType::ThreeKind(labels)
-            } else {
-                CardType::OnePair(labels)
-            }
-        } else {
-            if jockers.len() == 4 {
-                CardType::FiveKind(labels)
-            } else if jockers.len() == 3 {
-                CardType::FourKind(labels)
-            } else if jockers.len() == 2 {
-                CardType::ThreeKind(labels)
-            } else if jockers.len() == 1 {
-                CardType::TwoPair(labels)
-            } else {
-                CardType::HighCard(labels)
-            }
+        let set = map.iter().map(|(_, v)| v).sorted().collect_vec();
+        let jocker_count = jockers.len();
+
+        match (set.as_slice(), jocker_count) {
+            (l, 0) => match l {
+                [5] => CardType::FiveKind(labels),
+                [1, 4] => CardType::FourKind(labels),
+                [2, 3] => CardType::FullHouse(labels),
+                [1, 1, 3] => CardType::ThreeKind(labels),
+                [1, 2, 2] => CardType::TwoPair(labels),
+                [1, 1, 1, 2] => CardType::OnePair(labels),
+                _ => CardType::HighCard(labels),
+            },
+            (l, 1) => match l {
+                [4] => CardType::FiveKind(labels),
+                [1, 3] => CardType::FourKind(labels),
+                [2, 2] => CardType::FullHouse(labels),
+                [1, 1, 2] => CardType::ThreeKind(labels),
+                _ => CardType::HighCard(labels),
+            },
+            (l, 2) => match l {
+                [3] => CardType::FiveKind(labels),
+                [1, 2] => CardType::FourKind(labels),
+                _ => CardType::OnePair(labels),
+            },
+            (l, 3) => match l {
+                [2] => CardType::FiveKind(labels),
+                _ => CardType::ThreeKind(labels),
+            },
+            (_, 4) => CardType::FourKind(labels),
+            _ => CardType::FiveKind(labels),
         }
     }
 }
