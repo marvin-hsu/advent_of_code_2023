@@ -298,6 +298,40 @@ mod tests {
         assert_eq!(Label::from_char_part2(&'J').unwrap(), Jocker);
     }
 
+    #[test]
+    fn test_parse_card_type_part2() {
+        // 32T3K 765
+        // T55J5 684
+        // KK677 28
+        // KTJJT 220
+        // QQQJA 483
+
+        assert_eq!(
+            CardType::from_labels_part2([Three, Two, Ten, Three, King]),
+            OnePair([Three, Two, Ten, Three, King])
+        );
+
+        assert_eq!(
+            CardType::from_labels_part2([Ten, Five, Five, Jocker, Five]),
+            FourKind([Ten, Five, Five, Jocker, Five])
+        );
+
+        assert_eq!(
+            CardType::from_labels_part2([King, King, Six, Seven, Seven]),
+            TwoPair([King, King, Six, Seven, Seven])
+        );
+
+        assert_eq!(
+            CardType::from_labels_part2([King, Ten, Jocker, Jocker, Ten]),
+            FourKind([King, Ten, Jocker, Jocker, Ten])
+        );
+
+        assert_eq!(
+            CardType::from_labels_part2([Queen, Queen, Queen, Jocker, Ace]),
+            FourKind([Queen, Queen, Queen, Jocker, Ace])
+        );
+    }
+
     // #[test]
     // fn test_parse_card_type() {
     //     assert_eq!(
