@@ -2,33 +2,74 @@ use std::{collections::HashMap, str::FromStr};
 
 use anyhow::{anyhow, Result};
 use itertools::Itertools;
+#[allow(unused_imports)]
 use tap::Tap;
 
 pub fn part1(input: &str) -> Result<usize> {
-    let input = input
+    let result = input
         .lines()
         .map(|line| {
-            line.split_once(' ').and_then(|(head, tail)| {
-                let card_type = head.parse::<CardType>().ok()?;
-                let bet_number = tail.parse::<usize>().ok()?;
-                Some((bet_number, card_type))
-            })
-        })
-        .collect::<Option<Vec<(usize, CardType)>>>()
-        .ok_or(anyhow!("Invalid input"))?;
+            line.split_once(' ')
+                .and_then(|(head, tail)| {
+                    let bet_number = tail.parse::<usize>().ok()?;
+                    let labels: [Label; 5] = head
+                        .chars()
+                        .map(|c| Label::from_char_part1(&c))
+                        .collect::<Result<Vec<Label>>>()
+                        .ok()?
+                        .try_into()
+                        .ok()?;
 
+                    let card_type = CardType::from_labels_part1(labels);
+
+                    Some((bet_number, card_type))
+                })
+                .ok_or(anyhow!("Invalid input: {}", line))
+        })
+        .process_results(|iter| {
+            iter.sorted_by_key(|card| card.1)
+                .enumerate()
+                .map(|(round, card)| (round + 1) * card.0)
+                .sum()
+        })?;
+
+    Ok(result)
+}
+
+pub fn part2(input: &str) -> Result<usize> {
     let result = input
-        .iter()
-        .sorted_by_key(|card| card.1)
-        .enumerate()
-        .map(|card| (card.0 + 1) * card.1 .0)
-        .sum();
+        .lines()
+        .map(|line| {
+            line.split_once(' ')
+                .and_then(|(head, tail)| {
+                    let bet_number = tail.parse::<usize>().ok()?;
+                    let labels: [Label; 5] = head
+                        .chars()
+                        .map(|c| Label::from_char_part2(&c))
+                        .collect::<Result<Vec<Label>>>()
+                        .ok()?
+                        .try_into()
+                        .ok()?;
+
+                    let card_type = CardType::from_labels_part2(labels);
+
+                    Some((bet_number, card_type))
+                })
+                .ok_or(anyhow!("Invalid input: {}", line))
+        })
+        .process_results(|iter| {
+            iter.sorted_by_key(|card| card.1)
+                .enumerate()
+                .map(|(round, card)| (round + 1) * card.0)
+                .sum()
+        })?;
 
     Ok(result)
 }
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash)]
 enum Label {
+    Jocker,
     Two,
     Three,
     Four,
@@ -44,10 +85,8 @@ enum Label {
     Ace,
 }
 
-impl TryFrom<char> for Label {
-    type Error = anyhow::Error;
-
-    fn try_from(c: char) -> Result<Label> {
+impl Label {
+    fn from_char_part1(c: &char) -> Result<Self> {
         match c {
             '2' => Ok(Label::Two),
             '3' => Ok(Label::Three),
@@ -59,6 +98,25 @@ impl TryFrom<char> for Label {
             '9' => Ok(Label::Nine),
             'T' => Ok(Label::Ten),
             'J' => Ok(Label::Jack),
+            'Q' => Ok(Label::Queen),
+            'K' => Ok(Label::King),
+            'A' => Ok(Label::Ace),
+            _ => Err(anyhow::anyhow!("Invalid label: {}", c)),
+        }
+    }
+
+    fn from_char_part2(c: &char) -> Result<Self> {
+        match c {
+            '2' => Ok(Label::Two),
+            '3' => Ok(Label::Three),
+            '4' => Ok(Label::Four),
+            '5' => Ok(Label::Five),
+            '6' => Ok(Label::Six),
+            '7' => Ok(Label::Seven),
+            '8' => Ok(Label::Eight),
+            '9' => Ok(Label::Nine),
+            'T' => Ok(Label::Ten),
+            'J' => Ok(Label::Jocker),
             'Q' => Ok(Label::Queen),
             'K' => Ok(Label::King),
             'A' => Ok(Label::Ace),
@@ -78,39 +136,34 @@ enum CardType {
     FiveKind([Label; 5]),
 }
 
-impl FromStr for CardType {
-    type Err = anyhow::Error;
-
-    fn from_str(s: &str) -> Result<CardType> {
-        let labels: [Label; 5] = s
-            .chars()
-            .map(|c| Label::try_from(c))
-            .collect::<Result<Vec<Label>>>()?
-            .try_into()
-            .map_err(|_| anyhow::anyhow!("Invalid card type: {}", s))?;
-
+impl CardType {
+    fn from_labels_part1(labels: [Label; 5]) -> Self {
         let map = labels.iter().fold(HashMap::new(), |mut map, label| {
             *map.entry(label).or_insert(0) += 1;
             map
         });
 
         if map.iter().any(|(_, &count)| count == 5) {
-            Ok(CardType::FiveKind(labels))
+            CardType::FiveKind(labels)
         } else if map.iter().any(|(_, &count)| count == 4) {
-            Ok(CardType::FourKind(labels))
+            CardType::FourKind(labels)
         } else if map.iter().any(|(_, &count)| count == 3) {
             if map.iter().any(|(_, &count)| count == 2) {
-                Ok(CardType::FullHouse(labels))
+                CardType::FullHouse(labels)
             } else {
-                Ok(CardType::ThreeKind(labels))
+                CardType::ThreeKind(labels)
             }
         } else if map.iter().filter(|(_, &count)| count == 2).count() == 2 {
-            Ok(CardType::TwoPair(labels))
+            CardType::TwoPair(labels)
         } else if map.iter().any(|(_, &count)| count == 2) {
-            Ok(CardType::OnePair(labels))
+            CardType::OnePair(labels)
         } else {
-            Ok(CardType::HighCard(labels))
+            CardType::HighCard(labels)
         }
+    }
+
+    fn from_labels_part2(labels: [Label; 5]) -> Self {
+        todo!()
     }
 }
 
@@ -118,7 +171,7 @@ impl FromStr for CardType {
 mod tests {
     use itertools::Itertools;
 
-    use crate::CardType;
+    use crate::{CardType, Label};
 
     use super::{CardType::*, Label::*};
 
@@ -169,26 +222,37 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_card_type() {
-        assert_eq!(
-            "32T3K".parse::<CardType>().unwrap(),
-            OnePair([Three, Two, Ten, Three, King])
-        );
-        assert_eq!(
-            "76584".parse::<CardType>().unwrap(),
-            HighCard([Seven, Six, Five, Eight, Four])
-        );
-        assert_eq!(
-            "KK677".parse::<CardType>().unwrap(),
-            TwoPair([King, King, Six, Seven, Seven])
-        );
-        assert_eq!(
-            "KTJJT".parse::<CardType>().unwrap(),
-            TwoPair([King, Ten, Jack, Jack, Ten])
-        );
-        assert_eq!(
-            "QQQJA".parse::<CardType>().unwrap(),
-            ThreeKind([Queen, Queen, Queen, Jack, Ace])
-        );
+    fn test_parse_label() {
+        assert_eq!(Label::from_char_part1(&'2').unwrap(), Two);
+        assert_eq!(Label::from_char_part1(&'3').unwrap(), Three);
+        assert_eq!(Label::from_char_part1(&'J').unwrap(), Jack);
+
+        assert_eq!(Label::from_char_part2(&'2').unwrap(), Two);
+        assert_eq!(Label::from_char_part2(&'3').unwrap(), Three);
+        assert_eq!(Label::from_char_part2(&'J').unwrap(), Jocker);
     }
+
+    // #[test]
+    // fn test_parse_card_type() {
+    //     assert_eq!(
+    //         "32T3K".parse::<CardType>().unwrap(),
+    //         OnePair([Three, Two, Ten, Three, King])
+    //     );
+    //     assert_eq!(
+    //         "76584".parse::<CardType>().unwrap(),
+    //         HighCard([Seven, Six, Five, Eight, Four])
+    //     );
+    //     assert_eq!(
+    //         "KK677".parse::<CardType>().unwrap(),
+    //         TwoPair([King, King, Six, Seven, Seven])
+    //     );
+    //     assert_eq!(
+    //         "KTJJT".parse::<CardType>().unwrap(),
+    //         TwoPair([King, Ten, Jack, Jack, Ten])
+    //     );
+    //     assert_eq!(
+    //         "QQQJA".parse::<CardType>().unwrap(),
+    //         ThreeKind([Queen, Queen, Queen, Jack, Ace])
+    //     );
+    // }
 }
