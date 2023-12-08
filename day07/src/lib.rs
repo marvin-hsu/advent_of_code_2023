@@ -171,14 +171,20 @@ impl CardType {
 mod tests {
     use itertools::Itertools;
 
-    use crate::{CardType, Label};
+    use crate::{CardType, Label, part1, part2};
 
     use super::{CardType::*, Label::*};
 
     #[test]
     fn test_part_1() {
         let input = include_str!("../example");
-        assert_eq!(super::part1(input).unwrap(), 6440);
+        assert_eq!(part1(input).unwrap(), 6440);
+    }
+
+    #[test]
+    fn test_part_2() {
+        let input = include_str!("../example");
+        assert_eq!(part2(input).unwrap(), 5905);
     }
 
     #[test]
