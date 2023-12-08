@@ -60,10 +60,7 @@ pub fn part2(input: &str) -> Result<usize> {
         .process_results(|iter| {
             iter.sorted_by_key(|card| card.1)
                 .enumerate()
-                .map(|(round, card)| {
-                    println!("{} \t- {:?}", round, card);
-                    (round + 1) * card.0
-                })
+                .map(|(round, card)| (round + 1) * card.0)
                 .sum()
         })?;
 
@@ -192,18 +189,17 @@ impl CardType {
                 [1, 3] => CardType::FourKind(labels),
                 [2, 2] => CardType::FullHouse(labels),
                 [1, 1, 2] => CardType::ThreeKind(labels),
-                _ => CardType::HighCard(labels),
+                _ => CardType::OnePair(labels),
             },
             (l, 2) => match l {
                 [3] => CardType::FiveKind(labels),
                 [1, 2] => CardType::FourKind(labels),
-                _ => CardType::OnePair(labels),
+                _ => CardType::ThreeKind(labels),
             },
             (l, 3) => match l {
                 [2] => CardType::FiveKind(labels),
-                _ => CardType::ThreeKind(labels),
+                _ => CardType::FourKind(labels),
             },
-            (_, 4) => CardType::FourKind(labels),
             _ => CardType::FiveKind(labels),
         }
     }
