@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Ok, Result};
 use itertools::Itertools;
 #[allow(unused_imports)]
 use tap::Tap;
@@ -9,22 +9,20 @@ pub fn part1(input: &str) -> Result<usize> {
     let result = input
         .lines()
         .map(|line| {
-            line.split_once(' ')
-                .and_then(|(head, tail)| {
-                    let bet_number = tail.parse::<usize>().ok()?;
-                    let labels: [Label; 5] = head
-                        .chars()
-                        .map(|c| Label::from_char_part1(&c))
-                        .collect::<Result<Vec<Label>>>()
-                        .ok()?
-                        .try_into()
-                        .ok()?;
+            let (head, tail) = line
+                .split_once(' ')
+                .ok_or(anyhow!("Parse fail: {}", line))?;
+            let bet_number = tail.parse::<usize>()?;
+            let labels: [Label; 5] = head
+                .chars()
+                .map(|c| Label::from_char_part1(&c))
+                .process_results(|iter| iter.collect_vec())?
+                .try_into()
+                .map_err(|_| anyhow!("Parse Labels Fail:{}", line))?;
 
-                    let card_type = CardType::from_labels_part1(labels);
+            let card_type = CardType::from_labels_part1(labels);
 
-                    Some((bet_number, card_type))
-                })
-                .ok_or(anyhow!("Invalid input: {}", line))
+            Ok((bet_number, card_type))
         })
         .process_results(|iter| {
             iter.sorted_by_key(|card| card.1)
@@ -40,22 +38,20 @@ pub fn part2(input: &str) -> Result<usize> {
     let result = input
         .lines()
         .map(|line| {
-            line.split_once(' ')
-                .and_then(|(head, tail)| {
-                    let bet_number = tail.parse::<usize>().ok()?;
-                    let labels: [Label; 5] = head
-                        .chars()
-                        .map(|c| Label::from_char_part2(&c))
-                        .collect::<Result<Vec<Label>>>()
-                        .ok()?
-                        .try_into()
-                        .ok()?;
+            let (head, tail) = line
+                .split_once(' ')
+                .ok_or(anyhow!("Parse fail: {}", line))?;
+            let bet_number = tail.parse::<usize>()?;
+            let labels: [Label; 5] = head
+                .chars()
+                .map(|c| Label::from_char_part2(&c))
+                .process_results(|iter| iter.collect_vec())?
+                .try_into()
+                .map_err(|_| anyhow!("Parse Labels Fail:{}", line))?;
 
-                    let card_type = CardType::from_labels_part2(labels);
+            let card_type = CardType::from_labels_part2(labels);
 
-                    Some((bet_number, card_type))
-                })
-                .ok_or(anyhow!("Invalid input: {}", line))
+            Ok((bet_number, card_type))
         })
         .process_results(|iter| {
             iter.sorted_by_key(|card| card.1)
