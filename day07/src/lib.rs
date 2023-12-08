@@ -162,8 +162,68 @@ impl CardType {
         }
     }
 
+    /// needed debug
     fn from_labels_part2(labels: [Label; 5]) -> Self {
-        todo!()
+        let (map, jockers) =
+            labels
+                .iter()
+                .fold((HashMap::new(), vec![]), |(mut map, mut jockers), label| {
+                    if *label == Label::Jocker {
+                        jockers.push(label);
+                    } else {
+                        *map.entry(label).or_insert(0) += 1;
+                    }
+
+                    (map, jockers)
+                });
+
+        if map.iter().any(|(_, &count)| count == 5) {
+            CardType::FiveKind(labels)
+        } else if map.iter().any(|(_, &count)| count == 4) {
+            if jockers.len() == 1 {
+                CardType::FiveKind(labels)
+            } else {
+                CardType::FourKind(labels)
+            }
+        } else if map.iter().any(|(_, &count)| count == 3) {
+            if map.iter().any(|(_, &count)| count == 2) {
+                CardType::FullHouse(labels)
+            } else if jockers.len() == 2 {
+                CardType::FiveKind(labels)
+            } else if jockers.len() == 1 {
+                CardType::FourKind(labels)
+            } else {
+                CardType::ThreeKind(labels)
+            }
+        } else if map.iter().filter(|(_, &count)| count == 2).count() == 2 {
+            if jockers.len() == 1 {
+                CardType::FullHouse(labels)
+            } else {
+                CardType::TwoPair(labels)
+            }
+        } else if map.iter().any(|(_, &count)| count == 2) {
+            if jockers.len() == 3 {
+                CardType::FiveKind(labels)
+            } else if jockers.len() == 2 {
+                CardType::FourKind(labels)
+            } else if jockers.len() == 1 {
+                CardType::ThreeKind(labels)
+            } else {
+                CardType::OnePair(labels)
+            }
+        } else {
+            if jockers.len() == 4 {
+                CardType::FiveKind(labels)
+            } else if jockers.len() == 3 {
+                CardType::FourKind(labels)
+            } else if jockers.len() == 2 {
+                CardType::ThreeKind(labels)
+            } else if jockers.len() == 1 {
+                CardType::TwoPair(labels)
+            } else {
+                CardType::HighCard(labels)
+            }
+        }
     }
 }
 
@@ -171,7 +231,7 @@ impl CardType {
 mod tests {
     use itertools::Itertools;
 
-    use crate::{CardType, Label, part1, part2};
+    use crate::{part1, part2, CardType, Label};
 
     use super::{CardType::*, Label::*};
 
