@@ -139,7 +139,7 @@ impl CardType {
             map
         });
 
-        let set = map.iter().map(|(_, v)| v).sorted().collect_vec();
+        let set = map.values().sorted().collect_vec();
 
         match set.as_slice() {
             [5] => CardType::FiveKind(labels),
@@ -167,7 +167,7 @@ impl CardType {
                     (map, jockers)
                 });
 
-        let set = map.iter().map(|(_, v)| v).sorted().collect_vec();
+        let set = map.values().sorted().collect_vec();
         let jocker_count = jockers.len();
 
         match (set.as_slice(), jocker_count) {

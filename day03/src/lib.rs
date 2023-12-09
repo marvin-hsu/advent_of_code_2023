@@ -27,7 +27,7 @@ pub fn day3_part2(input: &str) -> usize {
         .sum()
 }
 
-//// Use Neighborhood Search
+/// Use Neighborhood Search
 #[allow(unused_variables)]
 pub fn day3_part2_v2(input: &str) -> usize {
     todo!()
