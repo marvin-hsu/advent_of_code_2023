@@ -1,26 +1,26 @@
+use anyhow::{Context, Ok, Result};
+use itertools::Itertools;
 use std::{
     collections::{HashMap, HashSet},
     str::FromStr,
 };
 
-pub fn day4_part1(input: &str) -> usize {
+pub fn day4_part1(input: &str) -> Result<usize> {
     input
         .lines()
-        .map(|line| line.parse::<ScratchCard>().map(|card| card.get_points()))
-        .sum::<Result<_, _>>()
-        .expect("Failed to parse scratch card")
+        .map(|line| line.parse::<ScratchCard>())
+        .process_results(|cards| cards.map(|card| card.get_points()).sum())
 }
 
-pub fn day4_part2(input: &str) -> usize {
+pub fn day4_part2(input: &str) -> Result<usize> {
     let cards: Vec<ScratchCard> = input
         .lines()
         .map(|line| line.parse())
-        .collect::<Result<_, _>>()
-        .expect("Failed to parse scratch card");
+        .collect::<Result<_>>()?;
 
     let cards_len = cards.len();
 
-    cards
+    let result = cards
         .iter()
         .fold(HashMap::new(), |mut map, card| {
             let count = card.count_matching_numbers();
@@ -37,7 +37,9 @@ pub fn day4_part2(input: &str) -> usize {
             map
         })
         .values()
-        .sum()
+        .sum();
+
+    Ok(result)
 }
 
 /// Replace HashMap with VecDeque
@@ -69,34 +71,33 @@ impl ScratchCard {
 }
 
 impl FromStr for ScratchCard {
-    type Err = ();
+    type Err = anyhow::Error;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        s.split_once(':')
-            .and_then(|(head, tail)| {
-                let id: usize = head
-                    .split_once(' ')
-                    .and_then(|(_, id)| id.trim().parse().ok())?;
+    fn from_str(s: &str) -> Result<Self> {
+        let (head, tail) = s.split_once(':').context("Parse Line Fail.")?;
 
-                let (wining_numbers, scratch_numbers) =
-                    tail.split_once('|').map(|(head, tail)| {
-                        (
-                            head.split(' ')
-                                .filter_map(|n| n.trim().parse().ok())
-                                .collect(),
-                            tail.split(' ')
-                                .filter_map(|n| n.trim().parse().ok())
-                                .collect(),
-                        )
-                    })?;
+        let id: usize = head
+            .split_once(' ')
+            .and_then(|(_, id)| id.trim().parse().ok())
+            .context("Parse Id Fail.")?;
 
-                Some(Self {
-                    id,
-                    wining_numbers,
-                    scratch_numbers,
-                })
-            })
-            .ok_or(())
+        let (head, tail) = tail.split_once('|').context("Parse Numbers Fail.")?;
+
+        let wining_numbers = head
+            .split_ascii_whitespace()
+            .map(|n| n.trim().parse())
+            .process_results(|iter| iter.collect::<HashSet<_>>())?;
+
+        let scratch_numbers = tail
+            .split_ascii_whitespace()
+            .map(|n| n.trim().parse())
+            .process_results(|iter| iter.collect::<HashSet<_>>())?;
+
+        Ok(Self {
+            id,
+            wining_numbers,
+            scratch_numbers,
+        })
     }
 }
 
@@ -108,14 +109,14 @@ mod tests {
     fn part1_example() {
         let input = include_str!("../example");
 
-        assert_eq!(day4_part1(input), 13);
+        assert_eq!(day4_part1(input).unwrap(), 13);
     }
 
     #[test]
     fn part2_example() {
         let input = include_str!("../example");
 
-        assert_eq!(day4_part2(input), 30);
+        assert_eq!(day4_part2(input).unwrap(), 30);
     }
 
     #[test]

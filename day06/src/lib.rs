@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 use itertools::Itertools;
 #[allow(unused_imports)]
 use tap::Tap;
@@ -34,7 +34,7 @@ pub fn day6_part1_v2(input: &str) -> Result<usize> {
                 .time
                 .pow(2)
                 .checked_add_signed(-4 * round.distance as isize)
-                .ok_or(anyhow!("Overflow"))
+                .context("Overflow")
                 .map(|discriminant| {
                     let b = round.time as f64;
                     let factor = (discriminant as f64).sqrt();
@@ -87,7 +87,7 @@ pub fn day6_part2_v2(input: &str) -> Result<usize> {
                 .time
                 .pow(2)
                 .checked_add_signed(-4 * round.distance as isize)
-                .ok_or(anyhow!("Overflow"))
+                .context("Overflow")
                 .map(|discriminant| {
                     let b = round.time as f64;
                     let factor = (discriminant as f64).sqrt();

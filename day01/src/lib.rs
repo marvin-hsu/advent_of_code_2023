@@ -1,25 +1,28 @@
-pub fn day1_part1(input: &str) -> u32 {
+use anyhow::{Context, Result};
+use itertools::Itertools;
+
+pub fn day1_part1(input: &str) -> Result<u32> {
     input
         .lines()
         .map(|line| {
-            let nums = line
-                .chars()
-                .filter_map(|c| c.to_digit(10))
-                .fold((None, None), |acc, x| match acc {
-                    (None, _) => (Some(x), Some(x)),
+            let (ten, unit) = line.chars().filter_map(|c| c.to_digit(10)).fold(
+                (None, None),
+                |acc, x| match acc {
+                    (None, _) => (Some(x * 10), Some(x)),
                     _ => (acc.0, Some(x)),
-                });
+                },
+            );
 
-            nums.0.unwrap() * 10 + nums.1.unwrap()
+            Ok(ten.context("Get Ten Digit Fail.")? + unit.context("Get Units Digit Fail.")?)
         })
-        .sum()
+        .process_results(|nums| nums.sum())
 }
 
-pub fn day1_part2(input: &str) -> u32 {
+pub fn day1_part2(input: &str) -> Result<u32> {
     input
         .lines()
         .map(|line| {
-            let nums = line
+            let (ten, unit) = line
                 .chars()
                 .enumerate()
                 .filter_map(|(i, _)| match &line[i..] {
@@ -35,13 +38,13 @@ pub fn day1_part2(input: &str) -> u32 {
                     s => s.chars().next().and_then(|c| c.to_digit(10)),
                 })
                 .fold((None, None), |acc, x| match acc {
-                    (None, _) => (Some(x), Some(x)),
+                    (None, _) => (Some(x * 10), Some(x)),
                     _ => (acc.0, Some(x)),
                 });
 
-            nums.0.unwrap() * 10 + nums.1.unwrap()
+            Ok(ten.context("Get Ten Digit Fail.")? + unit.context("Get Units Digit Fail.")?)
         })
-        .sum()
+        .process_results(|nums| nums.sum())
 }
 
 #[cfg(test)]
@@ -52,13 +55,13 @@ mod tests {
     fn part1_example() {
         let input = include_str!("../example1");
 
-        assert_eq!(day1_part1(input), 142);
+        assert_eq!(day1_part1(input).unwrap(), 142);
     }
 
     #[test]
     fn part2_example() {
         let input = include_str!("../example2");
 
-        assert_eq!(day1_part2(input), 281);
+        assert_eq!(day1_part2(input).unwrap(), 281);
     }
 }

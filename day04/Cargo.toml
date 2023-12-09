@@ -20,3 +20,5 @@ doctest = false
 
 [dependencies]
 tap = { workspace = true }
+anyhow ={ workspace = true }
+itertools ={ workspace = true }

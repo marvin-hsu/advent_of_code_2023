@@ -1,28 +1,31 @@
 use std::{collections::HashMap, str::FromStr};
 
+use anyhow::{Context, Result};
+use itertools::Itertools;
+
 const LIMIT: Limit = Limit {
     red: 12,
     blue: 14,
     green: 13,
 };
 
-pub fn day2_part1(input: &str) -> u32 {
+pub fn day2_part1(input: &str) -> Result<u32> {
     input
         .lines()
-        .filter_map(|line| {
-            line.parse()
-                .ok()
-                .filter(|game: &Game| game.is_passible(&LIMIT))
+        .map(|line| line.parse::<Game>())
+        .process_results(|games| {
+            games
+                .filter(|game| game.is_passible(&LIMIT))
                 .map(|game| game.id)
+                .sum()
         })
-        .sum()
 }
 
-pub fn day2_part2(input: &str) -> u32 {
+pub fn day2_part2(input: &str) -> Result<u32> {
     input
         .lines()
-        .filter_map(|line| line.parse().ok().map(|game: Game| game.get_power()))
-        .sum()
+        .map(|line| line.parse::<Game>())
+        .process_results(|games| games.map(|game| game.get_power()).sum())
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -65,15 +68,15 @@ impl Game {
 }
 
 impl FromStr for Game {
-    type Err = ();
+    type Err = anyhow::Error;
 
-    fn from_str(s: &str) -> Result<Self, ()> {
-        let (head, tail) = s.split_once(':').ok_or(())?;
+    fn from_str(s: &str) -> Result<Self> {
+        let (head, tail) = s.split_once(':').context("Parse Line Fail.")?;
 
         let id = head
             .split_once(' ')
             .and_then(|h| h.1.parse().ok())
-            .ok_or(())?;
+            .context("Parse Id Fail.")?;
 
         let cube_sets = tail
             .split(';')
@@ -107,14 +110,14 @@ mod tests {
     fn part1_example() {
         let input = include_str!("../example");
 
-        assert_eq!(day2_part1(input), 8);
+        assert_eq!(day2_part1(input).unwrap(), 8);
     }
 
     #[test]
     fn part2_example() {
         let input = include_str!("../example");
 
-        assert_eq!(day2_part2(input), 2286);
+        assert_eq!(day2_part2(input).unwrap(), 2286);
     }
 
     #[test]

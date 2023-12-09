@@ -18,3 +18,5 @@ test = false
 doctest = false
 
 [dependencies]
+anyhow ={ workspace = true }
+itertools ={ workspace = true }

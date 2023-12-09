@@ -1,6 +1,6 @@
 use std::{iter::once, str::FromStr};
 
-use anyhow::{anyhow, Ok, Result};
+use anyhow::{bail, Context, Ok, Result};
 
 use itertools::Itertools;
 use tap::Tap;
@@ -10,11 +10,11 @@ pub fn day5_part1(input: &str) -> Result<isize> {
     let seeds = iter
         .next()
         .and_then(|s| s.split_once(':'))
-        .ok_or(anyhow!("Parse Seeds Fail"))?
+        .context("Parse Seeds Fail")?
         .1
         .split_ascii_whitespace()
-        .map(|s| s.parse::<isize>())
-        .collect::<Result<Vec<isize>, _>>()?;
+        .map(|s| s.parse())
+        .collect::<Result<Vec<_>, _>>()?;
 
     let tables = iter
         .map(|table| table.parse::<Table>())
@@ -25,7 +25,7 @@ pub fn day5_part1(input: &str) -> Result<isize> {
         .fold(seeds, |seeds, table| table.map_to_targets(seeds))
         .iter()
         .min()
-        .ok_or(anyhow!("No Result"))
+        .context("No Result")
         .copied()
 }
 
@@ -35,10 +35,10 @@ pub fn day5_part2(input: &str) -> Result<isize> {
     let seeds = iter
         .next()
         .and_then(|s| s.split_once(':'))
-        .ok_or(anyhow!("Parse Seeds Fail"))?
+        .context("Parse Seeds Fail")?
         .1
         .split_ascii_whitespace()
-        .map(|s| s.parse::<isize>())
+        .map(|s| s.parse())
         .process_results(|iter| {
             iter.chunks(2)
                 .into_iter()
@@ -47,7 +47,7 @@ pub fn day5_part2(input: &str) -> Result<isize> {
                     let range = c.next().unwrap();
                     start..start + range
                 })
-                .collect::<Vec<isize>>()
+                .collect::<Vec<_>>()
         })?
         .tap(|v| println!("{:#?}", v));
 
@@ -60,7 +60,7 @@ pub fn day5_part2(input: &str) -> Result<isize> {
         .fold(seeds, |seeds, table| table.map_to_targets(seeds))
         .iter()
         .min()
-        .ok_or(anyhow!("No Result"))
+        .context("No Result")
         .copied()
 }
 
@@ -77,12 +77,12 @@ struct Table(Vec<Mapping>);
 impl FromStr for Mapping {
     type Err = anyhow::Error;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+    fn from_str(s: &str) -> Result<Self> {
         let mut iter = s.split(' ').map(|s| s.parse());
 
-        let target = iter.next().ok_or(anyhow!("Parse Target Fail"))??;
-        let source = iter.next().ok_or(anyhow!("Parse Source Fail"))??;
-        let range = iter.next().ok_or(anyhow!("Parse Range Fail"))??;
+        let target = iter.next().context("Parse Target Fail")??;
+        let source = iter.next().context("Parse Source Fail")??;
+        let range = iter.next().context("Parse Range Fail")??;
 
         match iter.next() {
             None => Ok(Mapping {
@@ -90,7 +90,7 @@ impl FromStr for Mapping {
                 target,
                 range,
             }),
-            _ => Err(anyhow!("Parse Fail : {}", s)),
+            _ => bail!("Parse Fail : {}", s),
         }
     }
 }
@@ -98,7 +98,7 @@ impl FromStr for Mapping {
 impl FromStr for Table {
     type Err = anyhow::Error;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+    fn from_str(s: &str) -> Result<Self> {
         let table = s
             .lines()
             .skip(1)
