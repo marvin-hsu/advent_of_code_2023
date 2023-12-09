@@ -32,7 +32,7 @@ fn get_sub_layer(layer: &[isize]) -> Option<Vec<isize>> {
         _ => Some(
             layer
                 .iter()
-                .zip(layer.iter().skip(1))
+                .tuple_windows()
                 .map(|(a, b)| b - a)
                 .collect_vec(),
         ),
