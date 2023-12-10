@@ -3,7 +3,6 @@ name = "day01"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
 name = "day01"
 path = "src/lib.rs"
@@ -18,5 +17,5 @@ test = false
 doctest = false
 
 [dependencies]
-anyhow ={ workspace = true }
-itertools ={ workspace = true }
+anyhow = { workspace = true }
+itertools = { workspace = true }
