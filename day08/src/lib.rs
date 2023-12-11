@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use anyhow::{anyhow, Ok, Result};
+use anyhow::{anyhow, Ok, Result, bail};
 #[allow(unused_imports)]
 use tap::Tap;
 
@@ -26,7 +26,7 @@ pub fn part1(input: &str) -> Result<usize> {
         }
     }
 
-    Err(anyhow!("No Solution"))
+    bail!("No Solution")
 }
 
 type Instructions = str;
