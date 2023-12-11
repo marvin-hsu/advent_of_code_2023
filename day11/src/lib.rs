@@ -36,7 +36,7 @@ impl Image {
 
         let image = input
             .lines()
-            .map(|line| line.chars().collect::<Vec<char>>())
+            .map(|line| line.chars().collect())
             .collect::<Vec<Vec<char>>>();
 
         let mut galaxies = vec![];
