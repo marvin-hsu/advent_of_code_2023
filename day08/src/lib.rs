@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use anyhow::{anyhow, Ok, Result, bail};
+use anyhow::{anyhow, bail, Ok, Result};
 #[allow(unused_imports)]
 use tap::Tap;
 

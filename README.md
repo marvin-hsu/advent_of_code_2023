@@ -15,3 +15,4 @@ This repository contains solutions to the 2023 [Advent of Code](https://adventof
 | [Day9](https://github.com/marvin-hsu/advent_of_code_2023/tree/main/day09)  | Finish | Finish |
 | [Day10](https://github.com/marvin-hsu/advent_of_code_2023/tree/main/day10) | Finish | -      |
 | [Day11](https://github.com/marvin-hsu/advent_of_code_2023/tree/main/day11) | Finish | Finish |
+| [Day12](https://github.com/marvin-hsu/advent_of_code_2023/tree/main/day12) | -      | -      |

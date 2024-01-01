@@ -66,7 +66,7 @@ impl Image {
 
                 current_x += 1;
 
-                if all_empty_column.contains(&x){
+                if all_empty_column.contains(&x) {
                     current_x += distance_factor;
                 }
             }
